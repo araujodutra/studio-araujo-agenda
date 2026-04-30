@@ -1,10 +1,11 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
+// 🔥 BASE_URL DINÂMICA
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 
 export const options = {
   vus: 10,
@@ -13,9 +14,9 @@ export const options = {
 
 export default function () {
 
- 
+  // 🔐 LOGIN
   const loginRes = http.post(
-    'http://localhost:3000/api/login',
+    `${BASE_URL}/api/login`,
     JSON.stringify({
       usuario: 'admin',
       senha: '123456'
@@ -41,9 +42,9 @@ export default function () {
 
   const token = body.token;
 
-  
+  // 📌 GET CLIENTES
   const res = http.get(
-    'http://localhost:3000/api/clientes',
+    `${BASE_URL}/api/clientes`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -61,6 +62,7 @@ export default function () {
 }
 
 
+// 📊 RELATÓRIO COM HISTÓRICO
 export function handleSummary(data) {
   const date = new Date().toISOString().replace(/[:.]/g, '-');
 
