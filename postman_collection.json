@@ -1,0 +1,626 @@
+{
+  "info": {
+    "_postman_id": "39622c8d-4719-4224-8177-c9cf76e276bf",
+    "name": "Studio Araujo Agenda - User Stories",
+    "description": "Collection criada a partir do projeto Node/Express Studio Araujo Agenda. Organizada por user stories para autenticação e gestão de clientes/agendamentos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34358724",
+    "_collection_link": "https://go.postman.co/collection/34358724-39622c8d-4719-4224-8177-c9cf76e276bf?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00 - Saude da API",
+      "item": [
+        {
+          "name": "API funcionando",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('API retorna mensagem de funcionamento', function () {",
+                  "  pm.expect(pm.response.text()).to.include('API Studio Araujo Agenda');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Valida a rota raiz definida em server.js/src/app.js."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como pessoa desenvolvedora, quero validar se a API esta online para iniciar os testes dos fluxos principais."
+    },
+    {
+      "name": "01 - Autenticacao de Usuario",
+      "item": [
+        {
+          "name": "Registrar novo usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 ou erro controlado se usuario ja existir', function () {",
+                  "  pm.expect([201, 500]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Retorna mensagem e id do usuario', function () {",
+                  "    pm.expect(json).to.have.property('mensagem');",
+                  "    pm.expect(json).to.have.property('id');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{usuario}}\",\n  \"senha\": \"{{senha}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "register"
+              ]
+            },
+            "description": "Cadastra um usuario usando src/controllers/authController.js."
+          },
+          "response": []
+        },
+        {
+          "name": "Login do usuario e salvar token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Retorna token JWT', function () {",
+                  "  pm.expect(json).to.have.property('token');",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{usuario}}\",\n  \"senha\": \"{{senha}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "Realiza login e salva o JWT na variavel token da collection."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como usuario do sistema, quero criar uma conta e fazer login para acessar rotas protegidas da agenda."
+    },
+    {
+      "name": "02 - Cadastrar Cliente e Agendamento",
+      "item": [
+        {
+          "name": "Criar cliente/agendamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Retorna mensagem e id do cliente', function () {",
+                  "  pm.expect(json).to.have.property('mensagem');",
+                  "  pm.expect(json).to.have.property('id');",
+                  "});",
+                  "",
+                  "if (json.id) {",
+                  "  pm.collectionVariables.set('cliente_id', String(json.id));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Antonio\",\n  \"telefone\": \"61999999999\",\n  \"email\": \"teste@email.com\",\n  \"servico\": \"Limpeza\",\n  \"data_agendamento\": \"2026-04-30\",\n  \"horario\": \"14:00:00\",\n  \"observacoes\": \"Teste criado pelo Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Cria cliente/agendamento. No codigo atual esta rota nao exige token, apenas validacao dos campos obrigatorios."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar cliente com dados obrigatorios ausentes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Retorna erro de campos obrigatorios', function () {",
+                  "  pm.expect(pm.response.json()).to.have.property('erro');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente sem horario\",\n  \"telefone\": \"61988888888\",\n  \"servico\": \"Corte\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Cenario de erro da user story de cadastro: validar campos obrigatorios."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como atendente, quero cadastrar um cliente com servico, data e horario para registrar um agendamento."
+    },
+    {
+      "name": "03 - Consultar Agenda de Clientes",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna uma lista', function () {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Lista clientes. Requer Authorization: Bearer {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar cliente por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status esperado', function () {",
+                  "  pm.expect([200, 404, 500]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Retorna dados do cliente', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('nome');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "Busca um cliente usando a variavel cliente_id."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar clientes sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Retorna erro de token', function () {",
+                  "  pm.expect(pm.response.json()).to.have.property('erro');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Cenario de erro: rota protegida sem Authorization."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como usuario autenticado, quero listar e consultar clientes para acompanhar os agendamentos do studio."
+    },
+    {
+      "name": "04 - Atualizar ou Cancelar Agendamento",
+      "item": [
+        {
+          "name": "Atualizar cliente/agendamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status esperado', function () {",
+                  "  pm.expect([200, 404, 500]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Retorna mensagem de sucesso', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('mensagem');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Antonio Atualizado\",\n  \"telefone\": \"61999999999\",\n  \"email\": \"teste@email.com\",\n  \"servico\": \"Limpeza Premium\",\n  \"data_agendamento\": \"2026-05-01\",\n  \"horario\": \"15:00:00\",\n  \"observacoes\": \"Atualizado pelo Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "Atualiza cliente/agendamento por ID. Requer token e campos obrigatorios."
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar cliente/agendamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status esperado', function () {",
+                  "  pm.expect([204, 404, 500]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "description": "Remove cliente/agendamento por ID. Atencao: depois de executar, o cliente_id salvo pode nao existir mais."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como usuario autenticado, quero atualizar ou remover um cliente/agendamento para manter a agenda correta."
+    },
+    {
+      "name": "05 - Cenarios de Erro de Autenticacao",
+      "item": [
+        {
+          "name": "Login com senha invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Retorna erro', function () {",
+                  "  pm.expect(pm.response.json()).to.have.property('erro');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{usuario}}\",\n  \"senha\": \"senha_errada\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "Valida retorno 401 para credenciais invalidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar clientes com token invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Retorna erro de token', function () {",
+                  "  pm.expect(pm.response.json()).to.have.property('erro');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer token_invalido"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Valida retorno 401 quando o token informado nao pode ser verificado."
+          },
+          "response": []
+        }
+      ],
+      "description": "User story: Como sistema, quero bloquear credenciais invalidas e tokens ausentes/invalidos para proteger dados da agenda."
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "usuario",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "senha",
+      "value": "123456",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cliente_id",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}
